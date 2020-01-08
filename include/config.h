@@ -1,3 +1,9 @@
+/**
+ * config.h
+ * Allows features to be enabled and disabled, as well as specifying built-in config options
+ * Copyright (C) 2020 Michael Hathaway
+ */
+
 #define WIFI_ENABLED 1
 #define LORA_ENABLED 1
 
