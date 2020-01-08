@@ -1,3 +1,7 @@
+/**
+ * Main program for ESP32 to monitor noise type and loudness
+ * Copyright (C) blueish 2020
+ */
 #include "Arduino.h"
 #include "arduinoFFT.h"
 #include <U8x8lib.h>
