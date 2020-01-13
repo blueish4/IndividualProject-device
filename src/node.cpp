@@ -7,6 +7,7 @@
 
 #include "transmit.h"
 #include "debug.h"
+#include "cfg.h"
 
 #define samplingFrequency 16500
 #define samples 2048
