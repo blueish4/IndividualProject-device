@@ -59,3 +59,7 @@ in emails and pocket. This means that the dates are according to email and calen
 
 * *1 hour* reconstruct some of a timelog from detritus
 * *2 hours* make initial structure of PIO project, think about optional WiFi to overcome LoRa flakiness
+
+## 13/01/2020
+
+* *3 hours* adding wifi support
