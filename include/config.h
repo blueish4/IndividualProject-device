@@ -15,7 +15,13 @@
 #define UPDATE_INTERVAL 60
 
 #define WIFI_SSID "ssid"
+// Use this for WPA2-PSK
 #define WIFI_PSK "password"
+// Use this for WPA2-Enterprise (ie. eduroam)
+#define EAP_IDENTITY "example@gla.ac.uk"
+#define EAP_PASSWORD "password"
+
+
 #define MQTT_SERVER
 #define MQTT_USERNAME
 #define MQTT_PASSWORD

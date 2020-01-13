@@ -2,9 +2,11 @@
  * Main program for ESP32 to monitor noise type and loudness
  * Copyright (C) blueish 2020
  */
-#include "Arduino.h"
+#include <Arduino.h>
 #include "arduinoFFT.h"
-#include <U8x8lib.h>
+
+#include "transmit.h"
+#include "debug.h"
 
 #define samplingFrequency 16500
 #define samples 2048
@@ -48,6 +50,8 @@ void generateFFT(){
 
 void setup(){
     Serial.begin(115200);
+    init_dbg();
+    init_send();
     //generate the fft frequency boundaries
     uint8_t boundaryCounter = 0;
     for(int i=2; i<samples; i++) {
