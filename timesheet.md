@@ -59,3 +59,11 @@ in emails and pocket. This means that the dates are according to email and calen
 
 * *1 hour* reconstruct some of a timelog from detritus
 * *2 hours* make initial structure of PIO project, think about optional WiFi to overcome LoRa flakiness
+
+## 09/01/2020
+
+* *2 hours* dissecting ABP example and moving it to PIO project
+
+## 12/01/2020
+
+* *1 hour* debugging LoRaWAN join failures, see #311 mcci-catena/arduino-lmic
