@@ -1,2 +1,2 @@
 void init_dbg();
-void dbg_print(char* msg);
+void dbg_print(std::string msg);
