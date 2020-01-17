@@ -2,10 +2,11 @@
 #include <Wire.h>
 #include <U8x8lib.h>
 #include <string>
+#include <queue>
 
 U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/ 15, /* data=*/ 4, /* reset=*/ 16);
 const int no_of_lines = 2;
-std::string dbg_lines[no_of_lines] = {"", ""};
+std::queue<std::string> dbg_lines = std::queue<std::string>();
 
 void init_dbg() {
     u8x8.begin();
@@ -16,14 +17,22 @@ void init_dbg() {
 
 void dbg_print(std::string msg) {
     Serial.println(msg.c_str());
-    if (dbg_lines[no_of_lines-1] == "") {
-        for (int i=no_of_lines-1;i>0;i--) {
-            dbg_lines[i] = dbg_lines[i-1];
-        }
+    while(dbg_lines.size() >= no_of_lines) {
+        dbg_lines.pop();
+        Serial.println("shrinking to max_size");
     }
-    dbg_lines[0] = msg;
+    dbg_lines.push(msg);
     u8x8.clear();
-    for(int i=0;i<no_of_lines;i++){
-        u8x8.drawString(0, i, dbg_lines[i].c_str());
+    std::queue<std::string> shown = std::queue<std::string>();
+    int i = 0;
+    while (dbg_lines.size()) {
+        auto line = dbg_lines.front();
+        dbg_lines.pop();
+        shown.push(line);
+        u8x8.drawString(0, i++, line.c_str());
+    }
+    while (shown.size()) {
+        dbg_lines.push(shown.front());
+        shown.pop();
     }
 }
