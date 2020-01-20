@@ -3,6 +3,8 @@
  * Copyright (C) blueish 2020
  */
 #include <Arduino.h>
+#include <WiFi.h>
+
 #include "arduinoFFT.h"
 
 #include "transmit.h"
@@ -50,7 +52,6 @@ void generateFFT(){
 }
 
 void setup(){
-    Serial.begin(115200);
     init_dbg();
     init_send();
     //generate the fft frequency boundaries
@@ -66,6 +67,7 @@ void setup(){
 }
 
 void loop(){
+    int lastMillis = 0;
     while(true) {
         //sampleAudio();
         //Serial.println(vReal[currentSample]);
@@ -79,6 +81,14 @@ void loop(){
             bands[i] = 0;
         }
         Serial.print("\n");
-        delay(2000);
+        send_loop();
+
+        // TODO: replace with your code
+        // publish a message roughly every second.
+        if (millis() - lastMillis > 6000) {
+            lastMillis = millis();
+            //publishTelemetry(mqttClient, "/sensors", getDefaultSensor());
+            sendData(WiFi.RSSI());
+        }
     }
 }
