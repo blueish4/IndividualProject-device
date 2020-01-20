@@ -63,3 +63,7 @@ in emails and pocket. This means that the dates are according to email and calen
 ## 13/01/2020
 
 * *3 hours* adding wifi support
+
+## 19/01/2020
+
+* *2 hours* Azure cloud bad library futzing
