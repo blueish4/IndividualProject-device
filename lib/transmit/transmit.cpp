@@ -8,10 +8,21 @@
 
 #include <WiFiClientSecure.h>
 #include <esp_wpa2.h>
+#include "esp32-mqtt.h"
 #include "debug.h"
-bool sendData(int* data) {
-    #ifdef WIFI_ENABLED
 
+void send_loop() {
+    mqtt->loop();
+    delay(10);  // <- fixes some issues with WiFi stability
+
+    if (!mqttClient->connected()) {
+        connect();
+    }
+}
+
+bool sendData(int data) {
+    #ifdef WIFI_ENABLED
+    publishTelemetry("/frequency", String(data));
     #endif
     return true;
 }
@@ -43,5 +54,22 @@ void init_send() {
         }
     }
     dbg_print("connected!");
+
+    configTime(0, 0, ntp_primary, ntp_secondary);
+    dbg_print("syncing time");
+    while (time(nullptr) < 1510644967) {
+        delay(10);
+    }
+
+    device = new CloudIoTCoreDevice(
+      project_id, location, registry_id, device_id,
+      private_key_str);
+
+    netClient = new WiFiClientSecure();
+    mqttClient = new MQTTClient(512);
+    mqttClient->setOptions(180, true, 1000); // keepAlive, cleanSession, timeout
+    mqtt = new CloudIoTCoreMqtt(mqttClient, netClient, device);
+    mqtt->setUseLts(false);
+    mqtt->startMQTT();
     #endif
 }

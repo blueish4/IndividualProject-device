@@ -67,3 +67,8 @@ in emails and pocket. This means that the dates are according to email and calen
 ## 19/01/2020
 
 * *2 hours* Azure cloud bad library futzing
+
+## 20/01/2020
+
+* *2 hours* Getting Google example running, GCP setup
+* *2 hours* Integrating Google cloud with current project structure
