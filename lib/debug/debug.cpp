@@ -36,3 +36,13 @@ void dbg_print(std::string msg) {
         shown.pop();
     }
 }
+
+void print_fft(int* bands, int length) {
+    std::string buffer = "";
+    for(int i=0;i<length;i++){
+        buffer += to_string(bands[i]) + " ";
+        bands[i] = 0;
+    }
+    buffer += "\n";
+    dbg_print(buffer);
+}
