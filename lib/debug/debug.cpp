@@ -1,12 +1,18 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <U8x8lib.h>
-#include <string>
+#include <sstream>
 #include <queue>
 
 U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/ 15, /* data=*/ 4, /* reset=*/ 16);
-const int no_of_lines = 2;
+const int no_of_lines = 6;
 std::queue<std::string> dbg_lines = std::queue<std::string>();
+
+std::string to_string(int i) {
+    std::ostringstream ss;
+    ss << i;
+    return ss.str();
+}
 
 void init_dbg() {
     u8x8.begin();
@@ -38,6 +44,16 @@ void dbg_print(std::string msg) {
 }
 
 void print_fft(int* bands, int length) {
+    std::string buffer = "";
+    for(int i=0;i<length;i++){
+        buffer += to_string(bands[i]) + " ";
+        bands[i] = 0;
+    }
+    buffer += "\n";
+    dbg_print(buffer);
+}
+
+void print_fft(uint16_t* bands, int length) {
     std::string buffer = "";
     for(int i=0;i<length;i++){
         buffer += to_string(bands[i]) + " ";
