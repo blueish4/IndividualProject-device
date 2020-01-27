@@ -20,9 +20,9 @@ void send_loop() {
     }
 }
 
-bool sendData(int data) {
+bool sendData(String data) {
     #ifdef WIFI_ENABLED
-    publishTelemetry("/frequency", String(data));
+    publishTelemetry(data);
     #endif
     return true;
 }
