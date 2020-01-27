@@ -1,6 +1,3 @@
-
-#define samplingFrequency 16500
-#define samples 2048
-
-void generateFFT();
-void init_transform();
+uint16_t* generateFFT();
+void init_transform(double* boundaries);
+void insertValue(int value);
