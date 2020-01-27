@@ -66,6 +66,8 @@ void connectWifi() {
 // Orchestrates various methods from preceeding code.
 ///////////////////////////////
 bool publishTelemetry(String data) {
+    Serial.print("pushing ");
+    Serial.println(data);
   return mqtt->publishTelemetry(data);
 }
 

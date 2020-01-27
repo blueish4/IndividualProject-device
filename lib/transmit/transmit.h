@@ -4,5 +4,5 @@
  * Copyright (C) blueish 2020
  */
 void send_loop();
-bool sendData(int data);
+bool sendData(String data);
 void init_send();
