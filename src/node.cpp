@@ -42,7 +42,7 @@ void loop(){
             sampleAudio();
         }
         uint16_t bands[9];
-        const valuePack data = generateFFT(bands);
+        const valuePack data = generateFFT(bands, boundaries);
         send_loop();
 
         // publish a message roughly every second (+ sample and calculate time).
