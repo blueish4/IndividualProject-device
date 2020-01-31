@@ -72,3 +72,7 @@ in emails and pocket. This means that the dates are according to email and calen
 
 * *2 hours* Getting Google example running, GCP setup
 * *2 hours* Integrating Google cloud with current project structure
+
+## 30/01/2020
+
+* *4 hours* Getting binary send working nicely with GCP, verifying FFT values
