@@ -20,9 +20,9 @@ void send_loop() {
     }
 }
 
-bool sendData(String data) {
+bool sendData(const char* data, int length) {
     #ifdef WIFI_ENABLED
-    publishTelemetry(data);
+    publishTelemetry(data, length);
     #endif
     return true;
 }
