@@ -76,3 +76,7 @@ in emails and pocket. This means that the dates are according to email and calen
 ## 30/01/2020
 
 * *4 hours* Getting binary send working nicely with GCP, verifying FFT values
+
+## 06/02/2020
+
+* *4 hours* Packing in dBA meter, research for dBA aligning the FFT values (FT also checked better now)

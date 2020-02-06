@@ -4,6 +4,7 @@
 #include "config.h"
 #include "trans_objects.h"
 #include "pack.h"
+#include "debug.h"
 
 arduinoFFT FFT = arduinoFFT(vReal, vImag, FFT_SAMPLES, samplingFrequency);
 
@@ -17,24 +18,29 @@ uint16_t max(uint16_t a, uint16_t b){
     return a>b?a:b;
 }
 
-valuePack generateFFT(uint16_t bands[9], double boundaries[9]) {
+valuePack generateFFT(uint16_t bands[8], double boundaries[8]) {
     FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
     FFT.Compute(FFT_FORWARD);
     FFT.ComplexToMagnitude();
-
+    /*for (int i=0;i<FFT_SAMPLES;i++) {
+        Serial.print((uint16_t)(vReal[i]/amplitude));
+        Serial.print(':');
+        Serial.print(i * 1.0 * samplingFrequency/FFT_SAMPLES);
+        Serial.print(',');
+    }
+    Serial.println();
+*/
     float step = 1.0 * samplingFrequency/FFT_SAMPLES;
     for (int i = 2; i < (FFT_SAMPLES/2); i++){ // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a bin and its value the amplitude.
-        if (vReal[i] > amplitude*10) { // Add a crude noise filter, 10 x amplitude or more
-            //Find the big bin this fits in
-            for (uint8_t n=0; n<9; n++) { //TODO: determine length dynamically
-                const float representedFrequency = step*i;
-                float lowerBound = n!=0?boundaries[n-1]:step;
-                float upperBound = boundaries[n];
-                //Serial.printf("is %f < %f <= %f ?\n", lowerBound, representedFrequency, upperBound);
-                if (lowerBound < representedFrequency && representedFrequency <= upperBound) {
-                    bands[n] = max(bands[n], (uint16_t)(vReal[i]/amplitude));
-                    break; // we found our target, so stop searching
-                }
+        //Find the big bin this fits in
+        for (uint8_t n=0; n<8; n++) { //TODO: determine length dynamically
+            const float representedFrequency = step*i;
+            float lowerBound = n!=0?boundaries[n-1]:step;
+            float upperBound = boundaries[n];
+            //Serial.printf("is %f < %f <= %f  sending %d?\n", lowerBound, representedFrequency, upperBound, (uint16_t)(vReal[i]/amplitude));
+            if (lowerBound < representedFrequency && representedFrequency <= upperBound) {
+                bands[n] = max(bands[n], (uint16_t)(vReal[i]/amplitude));
+                break; // we found our target, so stop searching
             }
         }
     }
@@ -50,7 +56,31 @@ valuePack generateFFT(uint16_t bands[9], double boundaries[9]) {
     return output;
 }
 
+// Calculate the weighting value to be added to a decibel version of the 
+double get_weighting(double frequency) {
+    // the formula for Ra(f) if from wikipedia.
+    // Return value is 20log10(Ra(f)) + 2 (to set weighting reference to standard 0dB at 1kHz)
+    // commonly used in the transfer function, so cache
+    double f_squared = pow(frequency, 2);
+    double big_square = pow(12194, 2);
+    double f_big_square = f_squared*big_square;
+
+    double Ra = (f_big_square*f_squared)/((f_squared+pow(20.6,2))*sqrt((f_squared+pow(107.7, 2))*(f_squared+pow(737.9,2)))*f_big_square);
+    return 20*log10(Ra) + 2;
+}
+
 void init_transform(double* boundaries) {
+    // Initialise the variables nicely
+    memset(vReal, 0, sizeof(vReal));
+    memset(vImag, 0, sizeof(vImag));
+
+    // warn on step width inadiquacy
+    float stepWidth = 2.0*samplingFrequency/FFT_SAMPLES;
+    if (stepWidth > boundaries[0]) {
+        dbg_print("WARN: step too big");
+    }
+
+    // NOT USED CURRENTLY
     //generate the fft frequency boundaries
     uint8_t boundaryCounter = 0;
     for(int i=2; i<FFT_SAMPLES; i++) {

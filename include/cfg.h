@@ -16,4 +16,7 @@
 
 // Enable only one channel (868.1MHz), or all channels
 #define LORA_SINGLE_CHANNEL 0
+
+// How many samples to average over for a decibel reading
+#define DECIBEL_SAMPLE_WIDTH 4
 #endif
