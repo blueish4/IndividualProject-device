@@ -18,10 +18,17 @@ unsigned long lastSample = 0;
 void sampleAudio(){
     // block until we have waited long enough
     // this may undersample, but can't oversample
-    while(micros()<lastSample + (1E6)/40000) {}
+    while(micros()<lastSample + (1E6)/samplingFrequency) {}
     //For the moment, this is analog over pin 36
     lastSample = micros();
     insertValue(analogRead(36));
+}
+
+uint16_t fakeSample(float frequency, int i) {
+    // i is the step in the loop at this point
+    float step = i * samplingFrequency;
+    auto sine = sin(i*2*PI*frequency/samplingFrequency);
+    return (sine + 1)*32767; // normalise to 0-65535
 }
 
 double sampleDBA() {
@@ -35,7 +42,7 @@ double sampleDBA() {
 void setup(){
     init_dbg();
     init_transform(boundaries);
-    init_send();
+    //init_send();
     pinMode(36, INPUT); // Set up microphone pin
     pinMode(38, INPUT); // Set up dBA meter
     dbg_print("Initialised!");
@@ -43,32 +50,23 @@ void setup(){
 
 void loop(){
     int lastMillis = 0;
+    uint16_t samplingPeriod = round(1000000 * (1.0 / samplingFrequency));
     while(true) {
-        //sampleAudio();
-        //Serial.println(vReal[currentSample]);
+        //send_loop();
+        // Sample audio
         for (int i=0;i<FFT_SAMPLES;i++){
-            sampleAudio();
+            lastMillis = micros();
+            //insertValue(analogRead(36), i);
+            insertValue(fakeSample(440,i),i);
+            while ((micros() - lastMillis) < samplingPeriod) { /* do nothing to wait */ }
         }
         uint16_t bands[8];
+        memset(&bands, 0, sizeof(bands));
         const valuePack data = generateFFT(bands, boundaries);
         const double dba = sampleDBA();
-        send_loop();
 
-        // publish a message roughly every second (+ sample and calculate time).
-        // this will end up junking a lot of data if sample time << 1 second
-        //if (millis() - lastMillis > UPDATE_INTERVAL*100) {
-            lastMillis = millis();
-            void* sendBuffer = malloc(sizeof(double)*2+sizeof(uint16_t)*8);
-            memcpy(sendBuffer, &data.majorPeak, sizeof(data.majorPeak));
-            memcpy(sendBuffer+sizeof(double), &dba, sizeof(dba));
-            const int offset = (int)sendBuffer+sizeof(double)*2;
-            for(int i=0;i<8;i++) {  //TODO: prune magic number here
-                memcpy((void*)offset+i*sizeof(uint16_t), &data.frequencies[i], sizeof(uint16_t));
-                data.frequencies[i] = 0;
-            }
-
-            sendData((const char*)sendBuffer, sizeof(double)*2+sizeof(uint16_t)*8);
-            free(sendBuffer);
-        //}
+        //sendData(data, dba);
+        //DEBUG: Blocking loop
+        sleep(UPDATE_INTERVAL);
     }
 }

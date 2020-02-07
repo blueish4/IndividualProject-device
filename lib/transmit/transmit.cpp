@@ -10,6 +10,7 @@
 #include <esp_wpa2.h>
 #include "esp32-mqtt.h"
 #include "debug.h"
+#include "pack.h"
 
 void send_loop() {
     mqtt->loop();
@@ -25,6 +26,19 @@ bool sendData(const char* data, int length) {
     publishTelemetry(data, length);
     #endif
     return true;
+}
+
+void sendData(valuePack p, double dba) {
+    void* sendBuffer = malloc(sizeof(double)*2+sizeof(uint16_t)*8);
+    memcpy(sendBuffer, &p.majorPeak.frequency, sizeof(p.majorPeak.frequency));
+    memcpy(sendBuffer+sizeof(double), &dba, sizeof(dba));
+    const int offset = (int)sendBuffer+sizeof(double)*2;
+    for(int i=0;i<8;i++) {  //TODO: prune magic number here
+        memcpy((void*)offset+i*sizeof(uint16_t), &p.frequencies[i], sizeof(uint16_t));
+        p.frequencies[i] = 0;
+    }
+    sendData((const char*)sendBuffer, sizeof(double)*2+sizeof(uint16_t)*8);
+    free(sendBuffer);
 }
 
 void init_send() {

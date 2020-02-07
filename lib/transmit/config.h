@@ -1,9 +1,9 @@
 #define WIFI_ENABLED 1
 #define LORA_ENABLED 1
 
-#define WIFI_SSID ""
+#define WIFI_SSID "VM8269201"
 // Use this for WPA2-PSK
-#define WIFI_PSK ""
+#define WIFI_PSK "9hzvwxgCfqk6"
 // Use this for WPA2-Enterprise (ie. eduroam)
 //#define EAP_IDENTITY
 //#define EAP_PASSWORD
