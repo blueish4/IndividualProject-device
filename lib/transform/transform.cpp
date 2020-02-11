@@ -45,7 +45,6 @@ valuePack generateFFT(uint16_t bands[8], double boundaries[8]) {
         const float representedFrequency = step*i;
         // apply weighting scale factor
         const double weighted = vReal[i]*get_weighting(representedFrequency);
-        Serial.printf("%f\t%f\n",weighted,representedFrequency);
         if (maxPeak.value<weighted) {
             maxPeak.frequency = representedFrequency;
             maxPeak.value = weighted;
