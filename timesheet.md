@@ -80,3 +80,15 @@ in emails and pocket. This means that the dates are according to email and calen
 ## 06/02/2020
 
 * *4 hours* Packing in dBA meter, research for dBA aligning the FFT values (FT also checked better now)
+
+## 07/02/2020
+
+* *5 hours* Trying to build a useless test rig, when a real lab exists.
+
+## 10/02/2020
+
+* *3 hours* Using the Rankine undergrad lab to find source of error
+
+## 11/02/2020
+
+* *1 hour* adding weighting factor to frequency bins after FFT is performed, prelim working
