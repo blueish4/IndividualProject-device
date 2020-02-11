@@ -26,7 +26,6 @@ void sampleAudio(){
 
 uint16_t fakeSample(float frequency, int i) {
     // i is the step in the loop at this point
-    float step = i * samplingFrequency;
     auto sine = sin(i*2*PI*frequency/samplingFrequency);
     return (sine + 1)*32767; // normalise to 0-65535
 }
@@ -56,8 +55,8 @@ void loop(){
         // Sample audio
         for (int i=0;i<FFT_SAMPLES;i++){
             lastMillis = micros();
-            //insertValue(analogRead(36), i);
-            insertValue(fakeSample(440,i),i);
+            insertValue(analogRead(36), i);
+            //insertValue(fakeSample(50,i),i);
             while ((micros() - lastMillis) < samplingPeriod) { /* do nothing to wait */ }
         }
         uint16_t bands[8];
