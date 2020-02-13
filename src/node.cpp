@@ -65,13 +65,17 @@ void loop(){
             uint16_t* fft_sample = generateFFT();
             for (int i=2;i<FFT_SAMPLES/2;i++){
                 uint32_t sum_bin = ((fft_averages[i]*n)+fft_sample[i]);
+                uint32_t average = sum_bin/n;
                 if (sum_bin/n>40000){
                     Serial.print(i*1.0 * samplingFrequency/FFT_SAMPLES);
                     Serial.print('\t');
-                    Serial.println(sum_bin/n);
+                    Serial.println(average);
 
                 }
-                fft_averages[i] = (sum_bin/n);
+                if (average > UINT16_MAX) { // clamp to maximum value
+                    average = UINT16_MAX;
+                }
+                fft_averages[i] = average;
             }
             free(fft_sample);
         }
