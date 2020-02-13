@@ -12,7 +12,7 @@
 #endif
 
 // Transmit every n seconds
-#define UPDATE_INTERVAL 60
+#define UPDATE_INTERVAL 4
 
 // Enable only one channel (868.1MHz), or all channels
 #define LORA_SINGLE_CHANNEL 0
