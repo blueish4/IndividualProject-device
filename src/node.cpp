@@ -11,17 +11,20 @@
 #include "pack.h"
 #include "cfg.h"
 
+#define FFT_AVERAGING_WINDOW 5
+
 double boundaries[8] = {63.0, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0};
 unsigned long lastSample = 0;
 // retrieves an audio sample and puts it in the queue
 // can be moved to an interrupt if required
-void sampleAudio(){
-    // block until we have waited long enough
-    // this may undersample, but can't oversample
-    while(micros()<lastSample + (1E6)/samplingFrequency) {}
-    //For the moment, this is analog over pin 36
+void sampleAudio(int iteration, int samplingPeriod){
+
     lastSample = micros();
-    insertValue(analogRead(36));
+    // Reading ADC while WiFi is on causes some intermittent issues
+    // not sure how to do that without killing the connection though 😞
+    insertValue(analogRead(36), iteration);
+    //insertValue(fakeSample(50,i),i);
+    while ((micros() - lastSample) < samplingPeriod) { /* do nothing to wait */ }
 }
 
 uint16_t fakeSample(float frequency, int i) {
@@ -41,30 +44,45 @@ double sampleDBA() {
 void setup(){
     init_dbg();
     init_transform(boundaries);
-    //init_send();
+    init_send();
     pinMode(36, INPUT); // Set up microphone pin
     pinMode(38, INPUT); // Set up dBA meter
     dbg_print("Initialised!");
 }
 
 void loop(){
-    int lastMillis = 0;
     uint16_t samplingPeriod = round(1000000 * (1.0 / samplingFrequency));
     while(true) {
-        //send_loop();
-        // Sample audio
-        for (int i=0;i<FFT_SAMPLES;i++){
-            lastMillis = micros();
-            insertValue(analogRead(36), i);
-            //insertValue(fakeSample(50,i),i);
-            while ((micros() - lastMillis) < samplingPeriod) { /* do nothing to wait */ }
+        send_loop();
+        uint16_t fft_averages[FFT_SAMPLES/2];
+        memset(fft_averages, 0, sizeof(fft_averages));
+        for (int n=1;n<FFT_AVERAGING_WINDOW+1; n++){
+            // Sample audio
+            // Time taken to sample = FFT_SAMPLES*samplingPeriod = 4096 * 62us = 253952 us = 0.25s
+            for (int i=0;i<FFT_SAMPLES;i++){
+                sampleAudio(i, samplingPeriod);
+            }
+            uint16_t* fft_sample = generateFFT();
+            for (int i=2;i<FFT_SAMPLES/2;i++){
+                uint32_t sum_bin = ((fft_averages[i]*n)+fft_sample[i]);
+                if (sum_bin/n>40000){
+                    Serial.print(i*1.0 * samplingFrequency/FFT_SAMPLES);
+                    Serial.print('\t');
+                    Serial.println(sum_bin/n);
+
+                }
+                fft_averages[i] = (sum_bin/n);
+            }
+            free(fft_sample);
         }
+        
         uint16_t bands[8];
         memset(&bands, 0, sizeof(bands));
-        const valuePack data = generateFFT(bands, boundaries);
-        const double dba = sampleDBA();
+        const valuePack data = binFFT(bands, fft_averages, boundaries);
+        //const double dba = sampleDBA();
+        const double dba = 0.0;
 
-        //sendData(data, dba);
+        sendData(data, dba);
         //DEBUG: Blocking loop
         sleep(UPDATE_INTERVAL);
     }

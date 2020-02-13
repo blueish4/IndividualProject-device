@@ -30,24 +30,16 @@ double get_weighting(double frequency) {
     return Ra*1000;  // amplify by arbitrary amount
 }
 
-
-valuePack generateFFT(uint16_t bands[8], double boundaries[8]) {
-    // Filter with a dBA filter
-
-    // Now compute FFT
-    FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-    FFT.Compute(FFT_FORWARD);
-    FFT.ComplexToMagnitude();
-
+valuePack binFFT(uint16_t bands[8], uint16_t* fft, double* boundaries) {
     float step = 1.0 * samplingFrequency/FFT_SAMPLES;
     peak maxPeak = {0, step}; // Initialise struct with 0 value
     for (int i = 2; i < (FFT_SAMPLES/2); i++){ // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a bin and its value the amplitude.
         const float representedFrequency = step*i;
-        // apply weighting scale factor
-        const double weighted = vReal[i]*get_weighting(representedFrequency);
-        if (maxPeak.value<weighted) {
+
+        if (maxPeak.value<fft[i]) {
+            Serial.printf("Next highest: %d\t%f\n", fft[i],representedFrequency);
             maxPeak.frequency = representedFrequency;
-            maxPeak.value = weighted;
+            maxPeak.value = fft[i];
         }
         //Find the big bin this fits in
         
@@ -56,11 +48,10 @@ valuePack generateFFT(uint16_t bands[8], double boundaries[8]) {
             float upperBound = boundaries[n];
             //Serial.printf("is %f < %f <= %f  sending %d?\n", lowerBound, representedFrequency, upperBound, (uint16_t)(vReal[i]/amplitude));
             if (lowerBound < representedFrequency && representedFrequency <= upperBound) {
-                bands[n] = max(bands[n], (uint16_t)(weighted/amplitude));
+                bands[n] = max(bands[n], (uint16_t) round(fft[i]));
                 break; // we found our target, so stop searching
             }
         }
-        
     }
 
     //DEBUG
@@ -72,6 +63,25 @@ valuePack generateFFT(uint16_t bands[8], double boundaries[8]) {
     //DBG END
     valuePack output = {bands, maxPeak};
     return output;
+}
+
+// Generates the weighted FFT values, returns values in heap allocated memory
+uint16_t* generateFFT() {
+    // Now compute FFT
+    FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT.Compute(FFT_FORWARD);
+    FFT.ComplexToMagnitude();
+    uint16_t* weighted = (uint16_t*) malloc(sizeof(uint16_t)*(FFT_SAMPLES/2));
+    // Weight the bins
+    float step = 1.0 * samplingFrequency/FFT_SAMPLES;
+    for (int i = 2; i < (FFT_SAMPLES/2); i++){ // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a bin and its value the amplitude.
+        const float representedFrequency = step*i;
+        // apply weighting scale factor
+        const auto weightedReal = vReal[i]*get_weighting(representedFrequency);
+        weighted[i] = (uint16_t)round(weightedReal);
+        //Serial.printf("%f\t%d\t%f\n", weightedReal, weighted[i], representedFrequency);
+    }
+    return weighted;
 }
 
 void init_transform(double* boundaries) {
@@ -96,6 +106,7 @@ void init_transform(double* boundaries) {
             boundaryCounter++;
         }
     }
+    Serial.println(1.0*samplingFrequency/FFT_SAMPLES);
     Serial.println(FFT_SAMPLES);
 }
 
