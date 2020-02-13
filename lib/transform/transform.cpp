@@ -26,7 +26,7 @@ double get_weighting(double frequency) {
     double big_square = pow(12194, 2);
     double f_big_square = f_squared*big_square;
 
-    double Ra = (f_big_square*f_squared)/((f_squared+pow(20.6,2))*sqrt((f_squared+pow(107.7, 2))*(f_squared+pow(737.9,2)))*f_big_square);
+    double Ra = (f_big_square*f_squared)/((f_squared+pow(20.6,2))*sqrt((f_squared+pow(107.7, 2))*(f_squared+pow(737.9,2)))*(f_squared+big_square));
     return Ra*1000;  // amplify by arbitrary amount
 }
 
