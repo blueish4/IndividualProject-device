@@ -27,7 +27,7 @@ double get_weighting(double frequency) {
     double f_big_square = f_squared*big_square;
 
     double Ra = (f_big_square*f_squared)/((f_squared+pow(20.6,2))*sqrt((f_squared+pow(107.7, 2))*(f_squared+pow(737.9,2)))*(f_squared+big_square));
-    return Ra*10;  // amplify by arbitrary amount
+    return Ra*5;  // amplify by arbitrary amount
 }
 
 valuePack binFFT(uint16_t bands[8], uint16_t* fft, double* boundaries) {
