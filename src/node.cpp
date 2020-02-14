@@ -36,7 +36,8 @@ uint16_t fakeSample(float frequency, int i) {
 double sampleDBA() {
     double walking_average = 0;
     for (int i=1;i<=DECIBEL_SAMPLE_WIDTH;i++) {
-        walking_average = (walking_average*(i-1)+(analogRead(38)/FFT_SAMPLES*50))/i;
+        const float readValue = analogRead(38)/1024.0;
+        walking_average = (walking_average*(i-1)+(readValue*50))/i;
     }
     return walking_average;
 }
@@ -83,8 +84,9 @@ void loop(){
         uint16_t bands[8];
         memset(&bands, 0, sizeof(bands));
         const valuePack data = binFFT(bands, fft_averages, boundaries);
-        //const double dba = sampleDBA();
-        const double dba = 0.0;
+        const double dba = sampleDBA();
+        //const double dba = 0.0;
+        Serial.println(dba);
 
         sendData(data, dba);
         //DEBUG: Blocking loop
