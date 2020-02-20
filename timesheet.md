@@ -92,3 +92,7 @@ in emails and pocket. This means that the dates are according to email and calen
 ## 11/02/2020
 
 * *1 hour* adding weighting factor to frequency bins after FFT is performed, prelim working
+
+## 20/02/2020
+
+* *5 hours* getting some nice charts and visualisations together with vue
