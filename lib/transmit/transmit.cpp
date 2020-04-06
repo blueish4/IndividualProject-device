@@ -33,7 +33,7 @@ void sendData(valuePack p, double dba) {
     memcpy(sendBuffer, &p.majorPeak.frequency, sizeof(p.majorPeak.frequency));
     memcpy(sendBuffer+sizeof(double), &dba, sizeof(dba));
     const int offset = (int)sendBuffer+sizeof(double)*2;
-    for(int i=0;i<8;i++) {  //TODO: prune magic number here
+    for(int i=0;i<8;i++) {
         memcpy((void*)offset+i*sizeof(uint16_t), &p.frequencies[i], sizeof(uint16_t));
         p.frequencies[i] = 0;
     }
