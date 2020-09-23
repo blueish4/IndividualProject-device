@@ -1,7 +1,7 @@
 # Room noise monitor - Device
 
 This is a section of my final year project which aims to create a system to monitor ambient
-noise in a given environment.
+noise in a given environment. A summary of the project can be found at https://blog.blueish.me/posts/dissertation/
 
 ## Setup
 
